@@ -1,0 +1,18 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Request {
+  id            String   @id @default(cuid())
+  title         String
+  body          String   @default("")
+  author        String   @default("")
+  slackNotified Boolean  @default(false)
+  teamsNotified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+}
