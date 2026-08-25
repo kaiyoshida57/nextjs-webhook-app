@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
 	title: "依頼",
-	description: "短い依頼を一覧に残し、SlackとTeamsへ周知する",
+	description: "短い依頼を一覧に残し、Slackへ周知する",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

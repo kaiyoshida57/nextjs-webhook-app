@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -13,6 +13,5 @@ model Request {
   body          String   @default("")
   author        String   @default("")
   slackNotified Boolean  @default(false)
-  teamsNotified Boolean  @default(false)
   createdAt     DateTime @default(now())
 }

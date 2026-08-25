@@ -8,20 +8,16 @@ type RequestItem = {
 	body: string;
 	author: string;
 	slackNotified: boolean;
-	teamsNotified: boolean;
 	createdAt: Date;
 };
 
 export const dynamic = "force-dynamic";
 
-function notifyLabel(slack: boolean, teams: boolean): string {
-	const parts: string[] = [];
-	if (slack) parts.push("Slack");
-	if (teams) parts.push("Teams");
-	if (parts.length === 0) {
-		return "チャット未送信（Webhook URL未設定または失敗）";
+function notifyLabel(slack: boolean): string {
+	if (slack) {
+		return "Slackに通知済み";
 	}
-	return `${parts.join(" / ")}に通知済み`;
+	return "Slack未送信（Webhook URL未設定または失敗）";
 }
 
 export default async function Home() {
@@ -35,7 +31,7 @@ export default async function Home() {
 			<header className="mb-8">
 				<h1 className="text-xl font-semibold tracking-tight">依頼</h1>
 				<p className="mt-1 text-sm text-zinc-600">
-					短い依頼を残すと、この一覧とSlack／Teamsに同じ内容が届きます。
+					短い依頼を残すと、この一覧とSlackに同じ内容が届きます。
 				</p>
 			</header>
 
@@ -65,7 +61,7 @@ export default async function Home() {
 							</p>
 						) : null}
 						<p className="mt-2 text-xs text-zinc-500">
-							{notifyLabel(item.slackNotified, item.teamsNotified)}
+							{notifyLabel(item.slackNotified)}
 						</p>
 					</li>
 				))}

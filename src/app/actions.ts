@@ -30,7 +30,6 @@ export async function createRequest(
 			body,
 			author,
 			slackNotified: notified.slackNotified,
-			teamsNotified: notified.teamsNotified,
 		},
 	});
 
