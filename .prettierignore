@@ -1,0 +1,12 @@
+node_modules/
+dist/
+public/
+*.svg
+.htaccess
+.htaccess-*
+.htaccess_*
+*.md
+*.min.js
+*.min.css
+
+*.scss

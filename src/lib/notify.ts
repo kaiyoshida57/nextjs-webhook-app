@@ -11,54 +11,47 @@
  */
 
 export type NotifyResult = {
-	slackNotified: boolean;
+  slackNotified: boolean;
 };
 
 function buildText(title: string, body: string, author: string): string {
-	const who = author.trim() || "名前なし";
-	const lines = [`【依頼】${title}`, `投稿者: ${who}`];
-	const trimmed = body.trim();
-	if (trimmed) {
-		lines.push("", trimmed);
-	}
-	return lines.join("\n");
+  const who = author.trim() || '名前なし';
+  const lines = [`【依頼板】${title}`, `投稿者: ${who}`];
+  const trimmed = body.trim();
+  if (trimmed) {
+    lines.push('', trimmed);
+  }
+  return lines.join('\n');
 }
 
 async function postSlackWebhook(url: string, text: string): Promise<boolean> {
-	try {
-		const response = await fetch(url, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ text }),
-		});
-		if (!response.ok) {
-			const detail = await response.text();
-			console.warn(`[notify] Slack failed: ${response.status} ${detail}`);
-			return false;
-		}
-		return true;
-	} catch (error) {
-		const message = error instanceof Error ? error.message : "unknown error";
-		console.warn(`[notify] Slack error: ${message}`);
-		return false;
-	}
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    if (!response.ok) {
+      const detail = await response.text();
+      console.warn(`[notify] Slack failed: ${response.status} ${detail}`);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown error';
+    console.warn(`[notify] Slack error: ${message}`);
+    return false;
+  }
 }
 
-export async function notifyChat(
-	title: string,
-	body: string,
-	author: string,
-): Promise<NotifyResult> {
-	const slackUrl = process.env.SLACK_WEBHOOK_URL?.trim();
+export async function notifyChat(title: string, body: string, author: string): Promise<NotifyResult> {
+  const slackUrl = process.env.SLACK_WEBHOOK_URL?.trim();
 
-	if (!slackUrl) {
-		console.warn("[notify] SLACK_WEBHOOK_URL is not set; skip Slack");
-		return { slackNotified: false };
-	}
+  if (!slackUrl) {
+    console.warn('[notify] SLACK_WEBHOOK_URL is not set; skip Slack');
+    return { slackNotified: false };
+  }
 
-	const slackNotified = await postSlackWebhook(
-		slackUrl,
-		buildText(title, body, author),
-	);
-	return { slackNotified };
+  const slackNotified = await postSlackWebhook(slackUrl, buildText(title, body, author));
+  return { slackNotified };
 }
