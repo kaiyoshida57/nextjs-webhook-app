@@ -2,15 +2,6 @@ import { RequestForm } from '@/app/RequestForm';
 import { formatRelativeTime } from '@/lib/formatRelativeTime';
 import { prisma } from '@/lib/prisma';
 
-type RequestItem = {
-  id: string;
-  title: string;
-  body: string;
-  author: string;
-  slackNotified: boolean;
-  createdAt: Date;
-};
-
 export const dynamic = 'force-dynamic';
 
 function notifyLabel(slack: boolean): string {
@@ -21,7 +12,7 @@ function notifyLabel(slack: boolean): string {
 }
 
 export default async function Home() {
-  const requests: RequestItem[] = await prisma.request.findMany({
+  const requests = await prisma.request.findMany({
     orderBy: { createdAt: 'desc' },
     take: 50,
   });

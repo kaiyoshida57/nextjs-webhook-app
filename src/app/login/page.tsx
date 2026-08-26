@@ -18,7 +18,7 @@ async function login(formData: FormData) {
   redirect('/');
 }
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
   const { error } = await searchParams;
 
   return (
