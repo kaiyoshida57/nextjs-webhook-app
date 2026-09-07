@@ -28,17 +28,21 @@ export async function createRequest(_prev: CreateRequestState, formData: FormDat
     return { error: `名前は${AUTHOR_MAX}文字以内にしてください` };
   }
 
-  // 先にチャットへPOSTし、成否をDBに残す（URL未設定なら false のまま保存）
-  const notified = await notifyChat(title, body, author);
-
-  await prisma.request.create({
+  const created = await prisma.request.create({
     data: {
       title,
       body,
       author,
-      slackNotified: notified.slackNotified,
     },
   });
+
+  const notified = await notifyChat(title, body, author);
+  if (notified.slackNotified) {
+    await prisma.request.update({
+      where: { id: created.id },
+      data: { slackNotified: true },
+    });
+  }
 
   revalidatePath('/');
   redirect('/');
