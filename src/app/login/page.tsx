@@ -11,6 +11,7 @@ async function login(formData: FormData) {
   const store = await cookies();
   store.set(AUTH_COOKIE, await makeAuthToken(), {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
     maxAge: 60 * 60 * 24 * 14,
