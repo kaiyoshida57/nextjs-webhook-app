@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { notifyChat } from '@/lib/notify';
 import { prisma } from '@/lib/prisma';
+import { AUTHOR_MAX, BODY_MAX, TITLE_MAX } from '@/lib/requestFields';
 
 export type CreateRequestState = {
   error?: string;
@@ -16,6 +17,15 @@ export async function createRequest(_prev: CreateRequestState, formData: FormDat
 
   if (!title) {
     return { error: 'タイトルを入力してください' };
+  }
+  if (title.length > TITLE_MAX) {
+    return { error: `タイトルは${TITLE_MAX}文字以内にしてください` };
+  }
+  if (body.length > BODY_MAX) {
+    return { error: `本文は${BODY_MAX}文字以内にしてください` };
+  }
+  if (author.length > AUTHOR_MAX) {
+    return { error: `名前は${AUTHOR_MAX}文字以内にしてください` };
   }
 
   // 先にチャットへPOSTし、成否をDBに残す（URL未設定なら false のまま保存）

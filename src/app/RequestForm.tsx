@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import { createRequest, type CreateRequestState } from '@/app/actions';
+import { AUTHOR_MAX, BODY_MAX, TITLE_MAX } from '@/lib/requestFields';
 
 const initial: CreateRequestState = {};
 
@@ -15,7 +16,7 @@ export function RequestForm() {
         <input
           name="title"
           required
-          maxLength={120}
+          maxLength={TITLE_MAX}
           placeholder="例: PR 42のapp.tsを見てほしい"
           className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
         />
@@ -25,7 +26,7 @@ export function RequestForm() {
         <textarea
           name="body"
           rows={4}
-          maxLength={2000}
+          maxLength={BODY_MAX}
           placeholder="見てほしい箇所やリンク"
           className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
         />
@@ -34,7 +35,7 @@ export function RequestForm() {
         <span className="text-sm font-medium text-zinc-800">名前（任意）</span>
         <input
           name="author"
-          maxLength={40}
+          maxLength={AUTHOR_MAX}
           placeholder="例: 山田"
           className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
         />
