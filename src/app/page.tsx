@@ -29,13 +29,15 @@ export default async function Home() {
       <ul className="mt-8 space-y-3">
         {requests.length === 0 && <li className="text-sm text-zinc-500">まだ依頼はありません</li>}
         {requests.map((item) => (
-          <li key={item.id} className="rounded-lg border border-zinc-200 bg-white p-4">
+          <li key={item.id} className="wrap-anywhere rounded-lg border border-zinc-200 bg-white p-4">
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-              <h2 className="text-sm font-medium">{item.title}</h2>
+              <h2 className="min-w-0 max-w-full text-sm font-medium">{item.title}</h2>
               <span className="text-xs text-zinc-500">{item.author || '名前なし'}</span>
               <span className="text-xs text-zinc-500">{formatRelativeTime(item.createdAt)}</span>
             </div>
-            {item.body ? <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{item.body}</p> : null}
+            {item.body ? (
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{item.body}</p>
+            ) : null}
             <p className="mt-2 text-xs text-zinc-500">{notifyLabel(item.slackNotified)}</p>
           </li>
         ))}
