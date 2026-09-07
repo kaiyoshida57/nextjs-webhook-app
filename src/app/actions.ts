@@ -28,13 +28,20 @@ export async function createRequest(_prev: CreateRequestState, formData: FormDat
     return { error: `名前は${AUTHOR_MAX}文字以内にしてください` };
   }
 
-  const created = await prisma.request.create({
-    data: {
-      title,
-      body,
-      author,
-    },
-  });
+  let created;
+  try {
+    created = await prisma.request.create({
+      data: {
+        title,
+        body,
+        author,
+      },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown error';
+    console.warn(`[createRequest] DB create failed: ${message}`);
+    return { error: '保存に失敗しました。時間をおいて再度お試しください' };
+  }
 
   const notified = await notifyChat(title, body, author);
   if (notified.slackNotified) {
