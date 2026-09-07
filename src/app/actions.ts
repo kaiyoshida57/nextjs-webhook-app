@@ -5,12 +5,15 @@ import { redirect } from 'next/navigation';
 import { notifyChat } from '@/lib/notify';
 import { prisma } from '@/lib/prisma';
 import { AUTHOR_MAX, BODY_MAX, TITLE_MAX } from '@/lib/requestFields';
+import { requireAuth } from '@/lib/requireAuth';
 
 export type CreateRequestState = {
   error?: string;
 };
 
 export async function createRequest(_prev: CreateRequestState, formData: FormData): Promise<CreateRequestState> {
+  await requireAuth();
+
   const title = String(formData.get('title') ?? '').trim();
   const body = String(formData.get('body') ?? '').trim();
   const author = String(formData.get('author') ?? '').trim();
