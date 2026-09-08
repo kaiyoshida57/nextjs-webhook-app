@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { notifyChat } from '@/lib/notify';
 import { prisma } from '@/lib/prisma';
 import { AUTHOR_MAX, BODY_MAX, TITLE_MAX } from '@/lib/requestFields';
+import { clientIp, consume, POST_LIMIT } from '@/lib/rateLimit';
 import { requireAuth } from '@/lib/requireAuth';
 
 export type CreateRequestState = {
@@ -13,6 +14,11 @@ export type CreateRequestState = {
 
 export async function createRequest(_prev: CreateRequestState, formData: FormData): Promise<CreateRequestState> {
   await requireAuth();
+
+  const ip = await clientIp();
+  if (!consume(`post:${ip}`, POST_LIMIT)) {
+    return { error: '投稿が多すぎます。時間をおいてください' };
+  }
 
   const title = String(formData.get('title') ?? '').trim();
   const body = String(formData.get('body') ?? '').trim();
