@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { AUTH_COOKIE, checkPassword, makeAuthToken } from '@/lib/auth';
+import { AUTH_COOKIE, AUTH_MAX_AGE_SEC, checkPassword, makeAuthToken } from '@/lib/auth';
 import { clientIp, hit, isLimited, LOGIN_FAIL_LIMIT } from '@/lib/rateLimit';
 
 async function login(formData: FormData) {
@@ -22,7 +22,7 @@ async function login(formData: FormData) {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
-    maxAge: 60 * 60 * 24 * 14,
+    maxAge: AUTH_MAX_AGE_SEC,
   });
   redirect('/');
 }

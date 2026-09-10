@@ -1,4 +1,5 @@
 export const AUTH_COOKIE = 'request_board_auth';
+export const AUTH_MAX_AGE_SEC = 60 * 60 * 24 * 14;
 
 export function isAuthEnabled(): boolean {
   return Boolean(process.env.APP_PASSWORD?.trim());
@@ -10,7 +11,18 @@ function toHex(bytes: ArrayBuffer): string {
     .join('');
 }
 
-export async function makeAuthToken(): Promise<string> {
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
+async function hmacHex(message: string): Promise<string> {
   const secret = process.env.APP_PASSWORD?.trim() || '';
   const key = await crypto.subtle.importKey(
     'raw',
@@ -19,8 +31,14 @@ export async function makeAuthToken(): Promise<string> {
     false,
     ['sign'],
   );
-  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode('ok'));
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message));
   return toHex(sig);
+}
+
+export async function makeAuthToken(): Promise<string> {
+  const exp = Math.floor(Date.now() / 1000) + AUTH_MAX_AGE_SEC;
+  const expStr = String(exp);
+  return `${expStr}.${await hmacHex(expStr)}`;
 }
 
 export async function isValidAuthToken(token: string | undefined): Promise<boolean> {
@@ -30,15 +48,21 @@ export async function isValidAuthToken(token: string | undefined): Promise<boole
   if (!token) {
     return false;
   }
-  const expected = await makeAuthToken();
-  if (token.length !== expected.length) {
+  const dot = token.indexOf('.');
+  if (dot <= 0 || dot !== token.lastIndexOf('.')) {
     return false;
   }
-  let diff = 0;
-  for (let i = 0; i < token.length; i++) {
-    diff |= token.charCodeAt(i) ^ expected.charCodeAt(i);
+  const expStr = token.slice(0, dot);
+  const sig = token.slice(dot + 1);
+  if (!/^[0-9]+$/.test(expStr) || !/^[0-9a-f]+$/.test(sig)) {
+    return false;
   }
-  return diff === 0;
+  const exp = Number(expStr);
+  if (!Number.isSafeInteger(exp) || Math.floor(Date.now() / 1000) >= exp) {
+    return false;
+  }
+  const expected = await hmacHex(expStr);
+  return timingSafeEqual(sig, expected);
 }
 
 export function checkPassword(input: string): boolean {
@@ -46,12 +70,5 @@ export function checkPassword(input: string): boolean {
   if (!expected) {
     return true;
   }
-  if (input.length !== expected.length) {
-    return false;
-  }
-  let diff = 0;
-  for (let i = 0; i < input.length; i++) {
-    diff |= input.charCodeAt(i) ^ expected.charCodeAt(i);
-  }
-  return diff === 0;
+  return timingSafeEqual(input, expected);
 }
